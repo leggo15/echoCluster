@@ -12,7 +12,6 @@ __pycache__/
 CORE/data/dataset_full_osu/
 CORE/data/raw/
 CORE/models/outputs/
-webgl/data/
 
 # GitHub rejects files over 100MB; viewer does not load these debug dumps
 **/points.json
