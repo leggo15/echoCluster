@@ -12,9 +12,6 @@
     #app { position: fixed; inset: 0; }
     #panel { position: absolute; z-index: 10; top: 12px; left: 12px; width: 420px; max-height: calc(100% - 42px); overflow-y: auto; background: rgba(12,14,20,0.88); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 12px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
     #dataCredit { position: absolute; z-index: 13; left: 12px; bottom: 8px; font-size: 10px; color: rgba(157,176,209,0.72); pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.75); }
-    #localOnlySearch { display: none; align-items: center; gap: 8px; margin: -2px 0 8px; }
-    #localOnlySearch label { min-width: 150px; }
-    .local-only-search-box { flex: 1; color: #5a6a80; font-size: 12px; border: 1px dashed rgba(255,255,255,0.16); border-radius: 7px; padding: 5px 8px; cursor: default; user-select: none; }
     #rightColumn { position: absolute; z-index: 11; top: 12px; right: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 6px; width: 320px; pointer-events: none; overflow: hidden; }
     #rightColumn > * { pointer-events: auto; }
     #searchClustersPanel { display: none; background: rgba(12,14,20,0.90); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 8px 10px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); font-size: 12px; }
@@ -110,15 +107,10 @@
         <select id="searchType" style="flex:0 0 auto;width:90px;min-width:0">
           <option value="map_id">Map ID</option>
           <option value="mapper">Mapper</option>
-          <option value="top_scores" id="topScoresOpt">Top Scores</option>
         </select>
         <input id="searchInput" type="text" style="flex:1;min-width:0" placeholder="e.g. 1234567" />
         <button id="searchBtn" class="btn" style="flex:0 0 auto;padding:5px 7px" type="button">Go</button>
       </div>
-    </div>
-    <div id="localOnlySearch" title="only available locally hosted">
-      <label></label>
-      <div class="local-only-search-box">Top Scores</div>
     </div>
     <div id="searchResult" class="small" style="display:none;margin:-4px 0 4px;padding:4px 6px;background:rgba(255,255,255,0.04);border-radius:6px;line-height:1.5"></div>
     <div class="row"><label for="starRange">Star range</label><div class="range-wrap"><div id="starRange" class="range-slider"></div><span id="starRangeV" class="small range-value">0.0-15.0</span></div></div>
@@ -151,16 +143,6 @@
   <script>
     const {DeckGL, ScatterplotLayer, TextLayer, PathLayer, SimpleMeshLayer, OrthographicView, OrbitView, OrbitController, COORDINATE_SYSTEM} = deck;
     const IS_LOCAL_HOST = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
-    (function syncLocalOnlySearch() {
-      const hint = document.getElementById('localOnlySearch');
-      const opt = document.getElementById('topScoresOpt');
-      if (IS_LOCAL_HOST) {
-        if (hint) hint.remove();
-      } else {
-        if (opt) opt.remove();
-        if (hint) hint.style.display = 'flex';
-      }
-    })();
 
     // Subclass that injects a per-vertex 'vtxColor' attribute (vec3, [0,1]) into the
     // SimpleMeshLayer vertex shader via the DECKGL_FILTER_COLOR hook.
@@ -489,24 +471,22 @@
         }
         // ── Top Scores local proxy ────────────────────────────────────────
         const TOP_SCORES_PROXY = 'http://localhost:7373';
-        // Non-blocking probe: if proxy answers /ping we enable the option.
-        (function probeTopScoresProxy() {
+        if (IS_LOCAL_HOST) {
           const ctrl = typeof AbortSignal !== 'undefined' && AbortSignal.timeout
             ? AbortSignal.timeout(800)
             : null;
-          const opts = ctrl ? {signal: ctrl} : {};
-          fetch(`${TOP_SCORES_PROXY}/ping`, opts)
+          fetch(`${TOP_SCORES_PROXY}/ping`, ctrl ? {signal: ctrl} : {})
             .then(r => r.json())
             .then(() => {
-              const opt = document.getElementById('topScoresOpt');
-              if (opt) {
-                opt.style.color = '';
-                opt.textContent = 'Top Scores';
-                opt.title = 'osu! top-100 lookup (local proxy running)';
-              }
+              if (document.getElementById('topScoresOpt')) return;
+              const opt = document.createElement('option');
+              opt.id = 'topScoresOpt';
+              opt.value = 'top_scores';
+              opt.textContent = 'Top Scores';
+              searchTypeEl.appendChild(opt);
             })
-            .catch(() => {}); // proxy not running — keep option disabled
-        })();
+            .catch(() => {});
+        }
 
         let selectedCluster = null;
         let selectedMapSet = new Set(); // indices of individually clicked/selected maps
