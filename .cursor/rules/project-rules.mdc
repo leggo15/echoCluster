@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+
+- If asked to redo some code, never implement fallback systems unless explicitly specified.
+- Prioritize clear and concise comments over excessive detail.
+- try to minimize the code needed for a feature, no extra rules or try excepts unless nessesary, if something might fail but it would hurt the end produt, we dont want a try, we want the error so we can fix it.

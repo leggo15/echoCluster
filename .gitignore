@@ -1,0 +1,19 @@
+.env
+env/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Large local artifacts (junctioned or generated)
+CORE/data/dataset_full_osu/
+CORE/data/raw/
+CORE/models/outputs/
+webgl/data/
+
+# GitHub rejects files over 100MB; viewer does not load these debug dumps
+**/points.json
+**/points3d.json
