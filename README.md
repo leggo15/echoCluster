@@ -1,8 +1,4 @@
-# echoCluster
-
-Standalone project for the osu! **Cluster Explorer**: dataset collection, contrastive embedding, clustering, and the 2D / 3D-sphere WebGL viewer.
-
-Spun out of `echoModel`. The original files are still in that repo; this folder is the dedicated home going forward.
+# osu! Maps Cluster Model and Visualization
 
 ## Layout
 
@@ -21,15 +17,13 @@ Spun out of `echoModel`. The original files are still in that repo; this folder 
 
 ## Setup
 
-Reuse the echoModel venv (junctioned as `env/`) or create a new one:
-
 ```powershell
 cd C:\Projects\echoCluster
 python -m venv env
 .\env\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Copy `.env.example` to `.env` and fill in `OSU_CLIENT_ID`, `OSU_CLIENT_SECRET`, and `ECHOSU_TOKEN`. A local `.env` was copied from echoModel so existing credentials keep working.
+Rename `.env.example` to `.env` and fill in `OSU_CLIENT_ID`, `OSU_CLIENT_SECRET`, and `ECHOSU_TOKEN`. 
 
 Run all `python -m CORE...` commands from this repo root so `CORE` is importable.
 
@@ -49,9 +43,7 @@ See `CLUSTERING_PIPELINE.md` for flags. Bare-bones:
 .\env\Scripts\python.exe webgl\generate_webgl_data.py --run_dir RUN_DIR
 ```
 
-## Open the Cluster Explorer
-
-Existing viewer data is already available via the junctioned March 2026 run:
+## Run Locally
 
 ```powershell
 cd CORE\models\outputs\20260309_UNSUP_083351\WebGL
