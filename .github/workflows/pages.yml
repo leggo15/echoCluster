@@ -1,0 +1,47 @@
+name: Deploy Cluster Explorer
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble static site
+        run: |
+          mkdir -p _site
+          cp webgl/index.html _site/index.html
+          touch _site/.nojekyll
+          if [ -d webgl/data ]; then
+            mkdir -p _site/data
+            rsync -a --exclude 'points.json' --exclude 'points3d.json' webgl/data/ _site/data/
+          elif [ -d CORE/models/outputs/20260309_UNSUP_083351/WebGL/data ]; then
+            mkdir -p _site/data
+            rsync -a --exclude 'points.json' --exclude 'points3d.json' \
+              CORE/models/outputs/20260309_UNSUP_083351/WebGL/data/ _site/data/
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
