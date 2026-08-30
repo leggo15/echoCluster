@@ -27,6 +27,7 @@ jobs:
         run: |
           mkdir -p _site
           cp webgl/index.html _site/index.html
+          cp google6293f4a951499d4d.html _site/google6293f4a951499d4d.html
           touch _site/.nojekyll
           if [ -d webgl/data ]; then
             mkdir -p _site/data
